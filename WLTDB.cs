@@ -161,7 +161,7 @@ namespace WLTDBWUI
 
                         var parameter = command.CreateParameter();
                         parameter.ParameterName = string.Format("P{0}", wlIdIndex);
-                        parameter.Value = wlIdAlias.Key;
+                        parameter.Value = wlIdAlias.Key.ToUpper();  // ログデータ中の WLID はすべて大文字のはずだが、念のため大文字化しておく
                         command.Parameters.Add(parameter);
 
                         ++wlIdIndex;
@@ -264,9 +264,10 @@ namespace WLTDBWUI
                     ")"
                     ;
                 {
+                    // ログデータ中の WLID はすべて大文字のはずだが、念のため大文字化しておく
                     var parameter = command.CreateParameter();
                     parameter.ParameterName = "@WLId";
-                    parameter.Value = wlId;
+                    parameter.Value = wlId.ToUpper();
                     command.Parameters.Add(parameter);
                 }
                 {
