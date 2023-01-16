@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -70,6 +71,13 @@ namespace WLTDBWUI
         /// <param name="e"></param>
         private void Main_Load(object sender, EventArgs e)
         {
+            // AssemblyVersion をタイトルに設定する
+            {
+                AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
+                string assemblyVersion = assemblyName.Version.ToString();
+                this.Text = string.Format("{0} - {1}", this.Text, assemblyVersion);
+            }
+
             //
             // [CSVの作成]
             //
