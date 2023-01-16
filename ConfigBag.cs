@@ -165,7 +165,7 @@ namespace WLTDBWUI
         }
 
         /// <summary>
-        /// WLID エイリアス名連想配列
+        /// WLIDエイリアス名連想配列
         /// </summary>
         public Dictionary<string, string> WlIdAliases
         {

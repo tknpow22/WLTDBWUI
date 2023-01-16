@@ -105,6 +105,16 @@ namespace WLTDBWUI
         {
             // プログラム設定
             {
+                // WLIDエイリアス名連想配列
+                {
+                    this.configBag.WlIdAliases.Clear();
+                    foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
+                        string wlId = item.Text;
+                        string alias = item.SubItems[1].Text;
+                        this.configBag.WlIdAliases.Add(wlId, alias);
+                    }
+                }
+
                 // WLID一覧の順序を更新する
                 {
                     this.configBag.WlIdByOrder.Clear();
@@ -387,6 +397,11 @@ namespace WLTDBWUI
 
             this.listViewNewWlIds.Items.Clear();
 
+            List<string> wlIdList = new List<string>();
+            foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
+                wlIdList.Add(item.Text);
+            }
+
             IProgress<string> progress = new Progress<string>(onlistViewNewWlIdsProgressChanged);
             await Task.Run(() =>
             {
@@ -395,7 +410,7 @@ namespace WLTDBWUI
                     List<string> wlIds = wltdb.GetWlIds();
 
                     foreach (string wlId in wlIds) {
-                        if (this.configBag.WlIdAliases.ContainsKey(wlId)) {
+                        if (wlIdList.Contains(wlId)) {
                             continue;
                         }
 
@@ -427,10 +442,9 @@ namespace WLTDBWUI
         private void buttonUseForCsv_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in this.listViewNewWlIds.SelectedItems) {
-                string wlid = item.Text;
+                string wlId = item.Text;
                 // エイリアス名にはWLIDを設定しておく
-                this.listViewWlIdsAndAliases.Items.Add(new ListViewItem(new string[] { wlid, wlid }));
-                this.configBag.WlIdAliases.Add(wlid, wlid);
+                this.listViewWlIdsAndAliases.Items.Add(new ListViewItem(new string[] { wlId, wlId }));
                 item.Remove();
             }
         }
@@ -472,7 +486,6 @@ namespace WLTDBWUI
 
             ListViewItem item = listViewWlIdsAndAliases.SelectedItems[0];
             item.SubItems[1].Text = alias;
-            this.configBag.WlIdAliases[item.Text] = alias;
         }
 
         /// <summary>
@@ -487,9 +500,7 @@ namespace WLTDBWUI
             }
 
             ListViewItem item = listViewWlIdsAndAliases.SelectedItems[0];
-            string wlId = item.Text;
             this.listViewWlIdsAndAliases.Items.Remove(item);
-            this.configBag.WlIdAliases.Remove(wlId);
         }
 
         /// <summary>
