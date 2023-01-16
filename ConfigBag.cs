@@ -165,17 +165,9 @@ namespace WLTDBWUI
         }
 
         /// <summary>
-        /// WLIDエイリアス名連想配列
+        /// WLIDエイリアス名
         /// </summary>
-        public Dictionary<string, string> WlIdAliases
-        {
-            get; set;
-        }
-
-        /// <summary>
-        /// 設定で保存する際の WLID の順番に格納する
-        /// </summary>
-        public List<string> WlIdByOrder
+        public List<KeyValuePair<string, string>> WlIdAliases
         {
             get; set;
         }
@@ -231,27 +223,27 @@ namespace WLTDBWUI
         /// </summary>
         private void Load()
         {
+            // データベースディレクトリ
             {
-                {
-                    bool valid = true;
+                bool valid = true;
 
-                    string dbDirectoryText = this.GetString(SECTION_NAME, KEY_DB_DIRECTORY);
-                    if (string.IsNullOrEmpty(dbDirectoryText)) {
+                string dbDirectoryText = this.GetString(SECTION_NAME, KEY_DB_DIRECTORY);
+                if (string.IsNullOrEmpty(dbDirectoryText)) {
+                    valid = false;
+                } else if (!Directory.Exists(dbDirectoryText)) {
+                    // フルパスが指定されていなかった時を想定
+                    if (0 <= dbDirectoryText.IndexOfAny(Path.GetInvalidPathChars())) {
                         valid = false;
-                    } else if (!Directory.Exists(dbDirectoryText)) {
-                        // フルパスが指定されていなかった時を想定
-                        if (0 <= dbDirectoryText.IndexOfAny(Path.GetInvalidPathChars())) {
-                            valid = false;
-                        }
                     }
-                    if (!valid) {
-                        dbDirectoryText = Path.Combine(this.appDirectory, "Db");
-                    }
-
-                    this.DbDirectory = dbDirectoryText;
                 }
+                if (!valid) {
+                    dbDirectoryText = Path.Combine(this.appDirectory, "Db");
+                }
+
+                this.DbDirectory = dbDirectoryText;
             }
 
+            // データベースファイル名
             {
                 string dbFilenameText = this.GetString(SECTION_NAME, KEY_DB_FILE_NAME);
                 if (string.IsNullOrEmpty(dbFilenameText)) {
@@ -260,6 +252,7 @@ namespace WLTDBWUI
                 this.DbFilename = dbFilenameText;
             }
 
+            // ログディレクトリ
             {
                 bool valid = true;
 
@@ -278,6 +271,7 @@ namespace WLTDBWUI
                 this.LogDirectory = logDirectoryText;
             }
 
+            // バックアップディレクトリ
             {
                 bool valid = true;
 
@@ -296,32 +290,33 @@ namespace WLTDBWUI
                 this.LogBackupDirectory = logBackupDirectoryText;
             }
 
+            // WLIDエイリアス名
             {
-                string wlIdsTSVText = this.GetString(SECTION_NAME, KEY_WLIDS_TSV);
-                string wlIdAliasesTSVText = this.GetString(SECTION_NAME, KEY_WLID_ALIASES_TSV);
+                string wlIdsTsvText = this.GetString(SECTION_NAME, KEY_WLIDS_TSV);
+                string wlIdAliasesTsvText = this.GetString(SECTION_NAME, KEY_WLID_ALIASES_TSV);
                 
-                string[] wlIdList = wlIdsTSVText.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
-                string[] wlIdAliasList = wlIdAliasesTSVText.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] wlIdList = wlIdsTsvText.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] wlIdAliasList = wlIdAliasesTsvText.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
 
-                Dictionary<string, string> wlIdAliases = new Dictionary<string, string>();
-                List<string> wlIdByOrder = new List<string>();
+                List<KeyValuePair<string, string>> wlIdAliases = new List<KeyValuePair<string, string>>();
 
                 for (int i = 0; i < wlIdList.Count(); ++i) {
                     if (wlIdAliasList.Count() <= i) {
                         break;
                     }
 
-                    wlIdAliases.Add(wlIdList[i], wlIdAliasList[i]);
-                    wlIdByOrder.Add(wlIdList[i]);
+                    wlIdAliases.Add(new KeyValuePair<string, string>(wlIdList[i], wlIdAliasList[i]));
                 }
+
                 this.WlIdAliases = wlIdAliases;
-                this.WlIdByOrder = wlIdByOrder;
             }
 
+            // 出力する CSV の日付の日の範囲(差)
             {
                 this.OutputCsvDateDayRange = this.GetInt(SECTION_NAME, KEY_OUTPUT_CSV_DATE_DAY_RANGE, 3);
             }
 
+            // CSV を出力するディレクトリ名
             {
                 bool valid = true;
 
@@ -342,6 +337,7 @@ namespace WLTDBWUI
                 this.CsvDirectory = csvDirectoryText;
             }
 
+            // 出力する CSV のファイル名
             {
                 string csvFileNameText = this.GetString(SECTION_NAME, KEY_CSV_FILE_NAME);
                 if (string.IsNullOrEmpty(csvFileNameText)) {
@@ -350,8 +346,8 @@ namespace WLTDBWUI
                 this.CsvFilename = csvFileNameText;
             }
 
+            // CSV 作成後関連付け起動する
             {
-                //ExecCSV
                 string execCSVText = this.GetString(SECTION_NAME, KEY_EXEC_CSV);
                 if (string.IsNullOrEmpty(execCSVText)) {
                     execCSVText = "False";
@@ -365,27 +361,37 @@ namespace WLTDBWUI
         /// </summary>
         public void Save()
         {
+            // エンコーディングの警告用
             {
                 this.WriteString(SECTION_NAME_ENCODING_WARNING, KEY_ENCODING_WARN_WARNING, "このファイルは必ず Shift JIS で保存してください。");
             }
 
+            // WLIDエイリアス名
             {
+                List<string> wlIdList = new List<string>();
                 List<string> wlIdAliasList = new List<string>();
-                foreach (string wlId in this.WlIdByOrder) {
-                    string alias = this.WlIdAliases[wlId];
-                    wlIdAliasList.Add(alias);
+
+                foreach (KeyValuePair<string,string> wlIdAliase in this.WlIdAliases) {
+                    wlIdList.Add(wlIdAliase.Key);
+                    wlIdAliasList.Add(wlIdAliase.Value);
                 }
 
-                string wlIdsTSVText = string.Join("\t", this.WlIdByOrder);
-                string wlIdAliasesTSVText = string.Join("\t", wlIdAliasList);
+                string wlIdsTsvText = string.Join("\t", wlIdList);
+                string wlIdAliasesTsvText = string.Join("\t", wlIdAliasList);
 
-                this.WriteString(SECTION_NAME, KEY_WLIDS_TSV, wlIdsTSVText);
-                this.WriteString(SECTION_NAME, KEY_WLID_ALIASES_TSV, wlIdAliasesTSVText);
+                this.WriteString(SECTION_NAME, KEY_WLIDS_TSV, wlIdsTsvText);
+                this.WriteString(SECTION_NAME, KEY_WLID_ALIASES_TSV, wlIdAliasesTsvText);
             }
 
-            this.WriteInt(SECTION_NAME, KEY_OUTPUT_CSV_DATE_DAY_RANGE, this.OutputCsvDateDayRange);
+            // 出力する CSV の日付の日の範囲(差)
+            {
+                this.WriteInt(SECTION_NAME, KEY_OUTPUT_CSV_DATE_DAY_RANGE, this.OutputCsvDateDayRange);
+            }
 
-            this.WriteString(SECTION_NAME, KEY_EXEC_CSV, this.ExecCSV ? "True" : "False");
+            // CSV 作成後関連付け起動する
+            {
+                this.WriteString(SECTION_NAME, KEY_EXEC_CSV, this.ExecCSV ? "True" : "False");
+            }
         }
 
         /// <summary>

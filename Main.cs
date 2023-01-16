@@ -83,8 +83,9 @@ namespace WLTDBWUI
             //
 
             // [CSVに使用するWLIDとエイリアス名]の一覧を設定する
-            foreach (string wlId in this.configBag.WlIdByOrder) {
-                string alias = this.configBag.WlIdAliases[wlId];
+            foreach (KeyValuePair<string,string> wlIdAliase in this.configBag.WlIdAliases) {
+                string wlId = wlIdAliase.Key;
+                string alias = wlIdAliase.Value;
                 this.listViewWlIdsAndAliases.Items.Add(new ListViewItem(new string[] { wlId, alias }));
             }
 
@@ -113,21 +114,13 @@ namespace WLTDBWUI
         {
             // プログラム設定
             {
-                // WLIDエイリアス名連想配列
+                // WLIDエイリアス名
                 {
                     this.configBag.WlIdAliases.Clear();
                     foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
                         string wlId = item.Text;
                         string alias = item.SubItems[1].Text;
-                        this.configBag.WlIdAliases.Add(wlId, alias);
-                    }
-                }
-
-                // WLID一覧の順序を更新する
-                {
-                    this.configBag.WlIdByOrder.Clear();
-                    foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
-                        this.configBag.WlIdByOrder.Add(item.Text);
+                        this.configBag.WlIdAliases.Add(new KeyValuePair<string,string>(wlId, alias));
                     }
                 }
 
