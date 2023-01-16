@@ -126,7 +126,7 @@ namespace WLTDBWUI
         /// </summary>
         public string DbDirectory
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace WLTDBWUI
         /// </summary>
         public string DbFilename
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace WLTDBWUI
         /// </summary>
         public string LogDirectory
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace WLTDBWUI
         /// </summary>
         public string LogBackupDirectory
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace WLTDBWUI
         /// </summary>
         public string CsvDirectory
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace WLTDBWUI
         /// </summary>
         public string CsvFilename
         {
-            get; set; 
+            get; private set; 
         }
 
         /// <summary>

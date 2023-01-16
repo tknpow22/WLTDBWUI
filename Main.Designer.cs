@@ -134,11 +134,11 @@
             this.buttonOpenLogDirectory.UseVisualStyleBackColor = true;
             this.buttonOpenLogDirectory.Click += new System.EventHandler(this.buttonOpenLogDirectory_Click);
             // 
-            // buttonLoadLogFiles
+            // buttonLoadLogFilesFromLogDirectory
             // 
             this.buttonLoadLogFilesFromLogDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonLoadLogFilesFromLogDirectory.Location = new System.Drawing.Point(98, 411);
-            this.buttonLoadLogFilesFromLogDirectory.Name = "buttonLoadLogFiles";
+            this.buttonLoadLogFilesFromLogDirectory.Name = "buttonLoadLogFilesFromLogDirectory";
             this.buttonLoadLogFilesFromLogDirectory.Size = new System.Drawing.Size(175, 23);
             this.buttonLoadLogFilesFromLogDirectory.TabIndex = 2;
             this.buttonLoadLogFilesFromLogDirectory.Text = "ログフォルダの内容を反映する";
@@ -228,7 +228,6 @@
             this.checkBoxExecCsv.TabIndex = 3;
             this.checkBoxExecCsv.Text = "CSV作成後関連付け起動する";
             this.checkBoxExecCsv.UseVisualStyleBackColor = true;
-            this.checkBoxExecCsv.CheckedChanged += new System.EventHandler(this.checkBoxExecCSV_CheckedChanged);
             // 
             // groupBoxWlIdAndAlias
             // 

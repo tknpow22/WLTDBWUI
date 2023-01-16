@@ -103,13 +103,29 @@ namespace WLTDBWUI
         /// <param name="e"></param>
         private void Main_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // プログラム設定 - [出力するCSVの日付の日の範囲(差)]
+            // プログラム設定
             {
-                TimeSpan ts = this.dateTimePickerEndDate.Value - this.dateTimePickerStartDate.Value;
-                this.configBag.OutputCsvDateDayRange = ts.Days;
-            }
+                // WLID一覧の順序を更新する
+                {
+                    this.configBag.WlIdByOrder.Clear();
+                    foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
+                        this.configBag.WlIdByOrder.Add(item.Text);
+                    }
+                }
 
-            this.configBag.Save();
+                // [出力するCSVの日付の日の範囲(差)]
+                {
+                    TimeSpan ts = this.dateTimePickerEndDate.Value - this.dateTimePickerStartDate.Value;
+                    this.configBag.OutputCsvDateDayRange = ts.Days;
+                }
+
+                // [CSV作成後関連付け起動する]
+                {
+                    this.configBag.ExecCSV = checkBoxExecCsv.Checked;
+                }
+
+                this.configBag.Save();
+            }
         }
 
 
@@ -358,17 +374,6 @@ namespace WLTDBWUI
             this.listViewNewWlIds.Items.Add(new ListViewItem(wlId));
         }
 
-        /// <summary>
-        /// プログラム設定保存時のために一覧の順序を更新する
-        /// </summary>
-        private void updateConfigWlIdOrder()
-        {
-            this.configBag.WlIdByOrder.Clear();
-            foreach (ListViewItem item in this.listViewWlIdsAndAliases.Items) {
-                this.configBag.WlIdByOrder.Add(item.Text);
-            }
-        }
-
         #region イベントハンドラ - CSVの作成
 
         /// <summary>
@@ -426,7 +431,6 @@ namespace WLTDBWUI
                 // エイリアス名にはWLIDを設定しておく
                 this.listViewWlIdsAndAliases.Items.Add(new ListViewItem(new string[] { wlid, wlid }));
                 this.configBag.WlIdAliases.Add(wlid, wlid);
-                this.configBag.WlIdByOrder.Add(wlid);
                 item.Remove();
             }
         }
@@ -486,7 +490,6 @@ namespace WLTDBWUI
             string wlId = item.Text;
             this.listViewWlIdsAndAliases.Items.Remove(item);
             this.configBag.WlIdAliases.Remove(wlId);
-            this.configBag.WlIdByOrder.Remove(wlId);
         }
 
         /// <summary>
@@ -509,8 +512,6 @@ namespace WLTDBWUI
 
             this.listViewWlIdsAndAliases.Items.Remove(item);
             this.listViewWlIdsAndAliases.Items.Insert(selectedIndex - 1, item);
-
-            this.updateConfigWlIdOrder();
         }
 
         /// <summary>
@@ -533,8 +534,6 @@ namespace WLTDBWUI
 
             this.listViewWlIdsAndAliases.Items.Remove(item);
             this.listViewWlIdsAndAliases.Items.Insert(selectedIndex + 1, item);
-
-            this.updateConfigWlIdOrder();
         }
 
         /// <summary>
@@ -566,17 +565,6 @@ namespace WLTDBWUI
             }
 
             this.dateTimePickerStartDate.Value = this.dateTimePickerEndDate.Value;
-        }
-
-
-        /// <summary>
-        /// [CSV作成後関連付け起動する]が変更されたとき
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void checkBoxExecCSV_CheckedChanged(object sender, EventArgs e)
-        {
-            this.configBag.ExecCSV = checkBoxExecCsv.Checked;
         }
 
         /// <summary>
@@ -624,7 +612,7 @@ namespace WLTDBWUI
 
             this.EnableControls();
 
-            if (this.configBag.ExecCSV) {
+            if (checkBoxExecCsv.Checked) {
                 try {
                     System.Diagnostics.Process.Start(csvFilepath);
                 } catch (Exception ex) {
