@@ -24,9 +24,9 @@ namespace WLTDBWUI
         private string appDirectory;
 
         /// <summary>
-        /// .logファイル一覧のログファイル名を覚えておく
+        /// .logファイル一覧のログファイル名(大文字化後)を覚えておく
         /// </summary>
-        private Dictionary<string, string> logFiles = new Dictionary<string, string>();
+        private Dictionary<string, string> logFilenames = new Dictionary<string, string>();
 
         /// <summary>
         /// プログラム設定を保持する
@@ -156,10 +156,10 @@ namespace WLTDBWUI
         /// <summary>
         /// .logファイル一覧をクリアする
         /// </summary>
-        private void clearLogFiles()
+        private void ClearLogFiles()
         {
             this.listViewLogFiles.Items.Clear();
-            this.logFiles.Clear();
+            this.logFilenames.Clear();
         }
 
         #region イベントハンドラ - .log ファイルの取り込み
@@ -203,12 +203,6 @@ namespace WLTDBWUI
                 return;
             }
 
-            // ドロップ先がリストビューであるか一応チェックする
-            ListView targetListView = sender as ListView;
-            if (targetListView == null) {
-                return;
-            }
-
             this.DisableControls();
 
             IProgress<string> progress = new Progress<string>(onListViewLogFilesProgressChanged);
@@ -228,7 +222,7 @@ namespace WLTDBWUI
                     string destLogFilepath = Path.Combine(this.configBag.LogDirectory, logFilename);
 
                     // 未処理のもののみ処理する
-                    if (!this.logFiles.ContainsKey(ucLogFilename)) {
+                    if (!this.logFilenames.ContainsKey(ucLogFilename)) {
 
                         bool success = false;
                         try {
@@ -239,7 +233,7 @@ namespace WLTDBWUI
                             Commons.WriteLine(ex.ToString());
                         } finally {
                             if (success) {
-                                this.logFiles.Add(ucLogFilename, logFilename);
+                                this.logFilenames.Add(ucLogFilename, logFilename);
                                 progress.Report(logFilename);
                             }
                         }
@@ -257,7 +251,7 @@ namespace WLTDBWUI
         /// <param name="e"></param>
         private void buttonClearLogFiles_Click(object sender, EventArgs e)
         {
-            clearLogFiles();
+            ClearLogFiles();
         }
 
         /// <summary>
@@ -296,9 +290,9 @@ namespace WLTDBWUI
         private async void buttonLoadLogFilesFromLogDirectory_Click(object sender, EventArgs e)
         {
             string[] filenpaths = Directory.GetFiles(this.configBag.LogDirectory, "*.log", SearchOption.TopDirectoryOnly);
-            this.clearLogFiles();
 
             this.DisableControls();
+            this.ClearLogFiles();
 
             IProgress<string> progress = new Progress<string>(onListViewLogFilesProgressChanged);
             await Task.Run(() =>
@@ -307,8 +301,8 @@ namespace WLTDBWUI
 
                     string logFilename = Path.GetFileName(filepath);
                     string ucLogFilename = logFilename.ToUpper();
-                    if (!this.logFiles.ContainsKey(ucLogFilename)) {
-                        this.logFiles.Add(ucLogFilename, logFilename);
+                    if (!this.logFilenames.ContainsKey(ucLogFilename)) {
+                        this.logFilenames.Add(ucLogFilename, logFilename);
                         progress.Report(logFilename);
                     }
                 }
@@ -326,7 +320,7 @@ namespace WLTDBWUI
         {
             List<string> logFilepaths = new List<string>();
 
-            foreach (string logFilename in this.logFiles.Values) {
+            foreach (string logFilename in this.logFilenames.Values) {
                 string logFilepath = Path.Combine(configBag.LogDirectory, logFilename);
                 if (File.Exists(logFilepath)) {
                     logFilepaths.Add(logFilepath);
@@ -365,7 +359,7 @@ namespace WLTDBWUI
             });
 
             if (success) {
-                this.clearLogFiles();
+                this.ClearLogFiles();
             }
 
             this.EnableControls();
