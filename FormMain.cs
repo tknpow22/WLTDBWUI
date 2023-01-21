@@ -16,7 +16,7 @@ using System.Windows.Forms;
 
 namespace WLTDBWUI
 {
-    public partial class Main : Form
+    public partial class FormMain : Form
     {
         /// <summary>
         /// 実行モジュールのあるディレクトリ
@@ -33,7 +33,7 @@ namespace WLTDBWUI
         /// </summary>
         private ConfigBag configBag = new ConfigBag();
 
-        public Main()
+        public FormMain()
         {
             InitializeComponent();
 

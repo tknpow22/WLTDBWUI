@@ -1,6 +1,6 @@
 ﻿namespace WLTDBWUI
 {
-    partial class Main
+    partial class FormMain
     {
         /// <summary>
         /// 必要なデザイナー変数です。
