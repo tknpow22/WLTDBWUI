@@ -492,8 +492,8 @@
             this.MinimumSize = new System.Drawing.Size(800, 570);
             this.Name = "Main";
             this.Text = "WATCH LOGGERの .log 整理ツール";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Main_FormClosed);
-            this.Load += new System.EventHandler(this.Main_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormMain_FormClosed);
+            this.Load += new System.EventHandler(this.FormMain_Load);
             this.groupBoxLogFiles.ResumeLayout(false);
             this.tabControlMain.ResumeLayout(false);
             this.tabLog.ResumeLayout(false);

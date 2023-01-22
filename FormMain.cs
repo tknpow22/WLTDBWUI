@@ -69,7 +69,7 @@ namespace WLTDBWUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Main_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
             // AssemblyVersion をタイトルに設定する
             {
@@ -110,7 +110,7 @@ namespace WLTDBWUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Main_FormClosed(object sender, FormClosedEventArgs e)
+        private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
         {
             // プログラム設定
             {
