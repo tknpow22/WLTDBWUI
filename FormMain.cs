@@ -62,7 +62,7 @@ namespace WLTDBWUI
             }
         }
 
-        #region イベントハンドラ - Main
+        #region イベントハンドラ - FormMain
 
         /// <summary>
         /// フォームロード時
