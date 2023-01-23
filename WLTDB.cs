@@ -85,16 +85,13 @@ namespace WLTDBWUI
             return wlIds;
         }
 
-
         /// <summary>
-        /// 複数のログファイルをデータベースに取り込む
+        /// ひとつのログファイルをデータベースに取り込む
         /// </summary>
-        /// <param name="logFilepaths">ログファイルパスの配列</param>
-        public void LogFiles2Db(string[] logFilepaths)
+        /// <param name="logFilepath">ログファイルパス</param>
+        public void LogFile2Db(string logFilepath)
         {
-            foreach (string logFilepath in logFilepaths) {
-                this.WriteDbFromLogfile(logFilepath);
-            }
+            this.WriteDbFromLogfile(logFilepath);
         }
 
         /// <summary>
@@ -284,7 +281,7 @@ namespace WLTDBWUI
                 }
 
                 command.ExecuteNonQuery();
-                Commons.WriteLine("{0},{1},{2}", wlId, logDate, temperature);
+                ////Commons.WriteLine("{0},{1},{2}", wlId, logDate, temperature);
             }
         }
 

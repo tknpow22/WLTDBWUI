@@ -40,8 +40,10 @@ namespace WLTDBWUI
         {
             InitializeComponent();
 
-            this.appDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+            // ステータス表示用のテキストボックスを設定する
+            Commons.SetStatusTextBox(this.textBoxStatus);
 
+            this.appDirectory = Path.GetDirectoryName(Application.ExecutablePath);
             this.configBag.Initialize(appDirectory);
 
             this.CreateDirectory(this.configBag.DbDirectory);
@@ -336,24 +338,36 @@ namespace WLTDBWUI
             await Task.Run(() =>
             {
                 try {
-                    WLTDB wltdb = new WLTDB(this.configBag.DbFilepath);
-                    wltdb.LogFiles2Db(logFilepaths.ToArray());
+                    using (WLTDB wltdb = new WLTDB(this.configBag.DbFilepath)) {
 
-                    foreach (string logFilepath in logFilepaths) {
-                        try {
-                            string backupLogFilepath = Path.Combine(this.configBag.LogBackupDirectory, Path.GetFileName(logFilepath));
-                            // NOTE: System.IO.File.Move の第3引数 bool overwrite はどこいった？
-                            //File.Move(logFilepath, backupLogFilepath, true);
-                            if (File.Exists(backupLogFilepath)) {
-                                File.Delete(backupLogFilepath);
+                        int processCount = 0;
+
+                        foreach (string logFilepath in logFilepaths) {
+                            try {
+
+                                ++processCount;
+                                Commons.WriteLine($"{processCount}/{logFilepaths.Count}");
+
+                                wltdb.LogFile2Db(logFilepath);
+
+                                string backupLogFilepath = Path.Combine(this.configBag.LogBackupDirectory, Path.GetFileName(logFilepath));
+                                // NOTE: System.IO.File.Move の第3引数 bool overwrite はどこいった？
+                                //File.Move(logFilepath, backupLogFilepath, true);
+                                if (File.Exists(backupLogFilepath)) {
+                                    File.Delete(backupLogFilepath);
+                                }
+                                File.Move(logFilepath, backupLogFilepath);
+
+                                Commons.WriteLine($"{processCount}/{logFilepaths.Count}");
+
+                                success = true;
+
+                            } catch (Exception ex) {
+                                Commons.WriteLine(ex.ToString());
                             }
-                            File.Move(logFilepath, backupLogFilepath);
-                        } catch (Exception ex) {
-                            Commons.WriteLine(ex.ToString());
                         }
-                    }
 
-                    success = true;
+                    }
 
                 } catch (Exception ex) {
                     Commons.WriteLine(ex.ToString());
@@ -404,16 +418,17 @@ namespace WLTDBWUI
             await Task.Run(() =>
             {
                 try {
-                    WLTDB wltdb = new WLTDB(this.configBag.DbFilepath);
-                    List<string> wlIds = wltdb.GetWlIds();
+                    using (WLTDB wltdb = new WLTDB(this.configBag.DbFilepath)) {
+                        List<string> wlIds = wltdb.GetWlIds();
+                        foreach (string wlId in wlIds) {
+                            if (wlIdList.Contains(wlId)) {
+                                continue;
+                            }
 
-                    foreach (string wlId in wlIds) {
-                        if (wlIdList.Contains(wlId)) {
-                            continue;
+                            progress.Report(wlId);
                         }
-
-                        progress.Report(wlId);
                     }
+
                 } catch (Exception ex) {
                     Commons.WriteLine(ex.ToString());
                 }
@@ -612,8 +627,9 @@ namespace WLTDBWUI
             await Task.Run(() =>
             {
                 try {
-                    WLTDB wltdb = new WLTDB(this.configBag.DbFilepath);
-                    wltdb.DbData2Csv(csvFilepath, dateFrom, dateTo, wlIdAliases);
+                    using (WLTDB wltdb = new WLTDB(this.configBag.DbFilepath)) {
+                        wltdb.DbData2Csv(csvFilepath, dateFrom, dateTo, wlIdAliases);
+                    }
                 } catch (Exception ex) {
                     Commons.WriteLine(ex.ToString());
                 }
