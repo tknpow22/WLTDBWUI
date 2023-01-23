@@ -33,6 +33,9 @@ namespace WLTDBWUI
         /// </summary>
         private ConfigBag configBag = new ConfigBag();
 
+        /// <summary>
+        /// コンスタラクタ
+        /// </summary>
         public FormMain()
         {
             InitializeComponent();
