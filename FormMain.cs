@@ -40,8 +40,8 @@ namespace WLTDBWUI
         {
             InitializeComponent();
 
-            // ステータス表示用のテキストボックスを設定する
-            Commons.SetStatusTextBox(this.textBoxStatus);
+            // コンソール用のテキストボックスを設定する
+            Commons.SetConsoleTextBox(this.textBoxConsole);
 
             this.appDirectory = Path.GetDirectoryName(Application.ExecutablePath);
             this.configBag.Initialize(appDirectory);
@@ -62,12 +62,38 @@ namespace WLTDBWUI
                 try {
                     Directory.CreateDirectory(path);
                 } catch (Exception ex) {
-                    Commons.WriteLine(ex.ToString());
+                    Commons.WriteLine(ex.Message);
                 }
             }
         }
 
-        #region イベントハンドラ - FormMain
+        /// <summary>
+        /// コントロールの有効/無効を設定する
+        /// </summary>
+        private void ControlsEnabler(bool enabled)
+        {
+            this.tabControlMain.Enabled = enabled;
+            this.textBoxConsole.Enabled = enabled;
+            this.buttonClearConsole.Enabled = enabled;
+        }
+
+        /// <summary>
+        /// コントロールを有効化する
+        /// </summary>
+        private void EnableControls()
+        {
+            this.ControlsEnabler(true);
+        }
+
+        /// <summary>
+        /// コントロールを無効化する
+        /// </summary>
+        private void DisableControls()
+        {
+            this.ControlsEnabler(false);
+        }
+
+        #region イベントハンドラ
 
         /// <summary>
         /// フォームロード時
@@ -144,6 +170,19 @@ namespace WLTDBWUI
             }
         }
 
+        #endregion
+
+        #region コンソール
+
+        #region イベントハンドラ
+
+        private void buttonClearConsole_Click(object sender, EventArgs e)
+        {
+            textBoxConsole.Clear();
+        }
+
+
+        #endregion
 
         #endregion
 
@@ -167,7 +206,7 @@ namespace WLTDBWUI
             this.logFilenames.Clear();
         }
 
-        #region イベントハンドラ - .log ファイルの取り込み
+        #region イベントハンドラ
 
         /// <summary>
         /// ログファイル一覧 - ドラッグ
@@ -235,7 +274,7 @@ namespace WLTDBWUI
                             File.Copy(filepath, destLogFilepath, true);
                             success = true;
                         } catch (Exception ex) {
-                            Commons.WriteLine(ex.ToString());
+                            Commons.WriteLine(ex.Message);
                         } finally {
                             if (success) {
                                 this.logFilenames.Add(ucLogFilename, logFilename);
@@ -269,7 +308,7 @@ namespace WLTDBWUI
             try {
                 System.Diagnostics.Process.Start(this.configBag.LogDirectory);
             } catch (Exception ex) {
-                Commons.WriteLine(ex.ToString());
+                Commons.WriteLine(ex.Message);
             }
         }
 
@@ -283,7 +322,7 @@ namespace WLTDBWUI
             try {
                 System.Diagnostics.Process.Start(this.configBag.LogBackupDirectory);
             } catch (Exception ex) {
-                Commons.WriteLine(ex.ToString());
+                Commons.WriteLine(ex.Message);
             }
         }
 
@@ -294,22 +333,24 @@ namespace WLTDBWUI
         /// <param name="e"></param>
         private async void buttonLoadLogFilesFromLogDirectory_Click(object sender, EventArgs e)
         {
-            string[] filenpaths = Directory.GetFiles(this.configBag.LogDirectory, "*.log", SearchOption.TopDirectoryOnly);
-
             this.DisableControls();
             this.ClearLogFiles();
 
             IProgress<string> progress = new Progress<string>(onListViewLogFilesProgressChanged);
             await Task.Run(() =>
             {
-                foreach (string filepath in filenpaths) {
-
-                    string logFilename = Path.GetFileName(filepath);
-                    string ucLogFilename = logFilename.ToUpper();
-                    if (!this.logFilenames.ContainsKey(ucLogFilename)) {
-                        this.logFilenames.Add(ucLogFilename, logFilename);
-                        progress.Report(logFilename);
+                try {
+                    string[] filenpaths = Directory.GetFiles(this.configBag.LogDirectory, "*.log", SearchOption.TopDirectoryOnly);
+                    foreach (string filepath in filenpaths) {
+                        string logFilename = Path.GetFileName(filepath);
+                        string ucLogFilename = logFilename.ToUpper();
+                        if (!this.logFilenames.ContainsKey(ucLogFilename)) {
+                            this.logFilenames.Add(ucLogFilename, logFilename);
+                            progress.Report(logFilename);
+                        }
                     }
+                } catch (Exception ex) {
+                    Commons.WriteLine(ex.Message);
                 }
             });
 
@@ -333,20 +374,18 @@ namespace WLTDBWUI
             }
 
             this.DisableControls();
-            bool success = false;
+
+            List<string> successedFilepaths = new List<string>();
 
             await Task.Run(() =>
             {
                 try {
                     using (WLTDB wltdb = new WLTDB(this.configBag.DbFilepath)) {
 
-                        int processCount = 0;
-
                         foreach (string logFilepath in logFilepaths) {
                             try {
 
-                                ++processCount;
-                                Commons.WriteLine($"{processCount}/{logFilepaths.Count}");
+                                Commons.WriteLine($"処理中: {logFilepath}");
 
                                 wltdb.LogFile2Db(logFilepath);
 
@@ -357,26 +396,34 @@ namespace WLTDBWUI
                                     File.Delete(backupLogFilepath);
                                 }
                                 File.Move(logFilepath, backupLogFilepath);
-
-                                Commons.WriteLine($"{processCount}/{logFilepaths.Count}");
-
-                                success = true;
+                                successedFilepaths.Add(logFilepath);
 
                             } catch (Exception ex) {
-                                Commons.WriteLine(ex.ToString());
+                                Commons.WriteLine(ex.Message);
                             }
                         }
-
                     }
 
                 } catch (Exception ex) {
-                    Commons.WriteLine(ex.ToString());
+                    Commons.WriteLine(ex.Message);
                 }
-
             });
 
-            if (success) {
-                this.ClearLogFiles();
+            this.ClearLogFiles();
+
+            if (successedFilepaths.Count != logFilepaths.Count) {
+                // 失敗したファイルのみ .logファイル一覧に追加する 
+                foreach (string logFilepath in logFilepaths) {
+                    if (successedFilepaths.Contains(logFilepath)) {
+                        continue;
+                    }
+
+                    string logFilename = Path.GetFileName(logFilepath);
+                    string ucLogFilename = logFilename.ToUpper();
+
+                    this.logFilenames.Add(ucLogFilename, logFilename);
+                    onListViewLogFilesProgressChanged(logFilename);
+                }
             }
 
             this.EnableControls();
@@ -396,7 +443,7 @@ namespace WLTDBWUI
             this.listViewNewWlIds.Items.Add(new ListViewItem(wlId));
         }
 
-        #region イベントハンドラ - CSVの作成
+        #region イベントハンドラ
 
         /// <summary>
         /// [新たなWLIDを内部データベースから読み込む]
@@ -430,7 +477,7 @@ namespace WLTDBWUI
                     }
 
                 } catch (Exception ex) {
-                    Commons.WriteLine(ex.ToString());
+                    Commons.WriteLine(ex.Message);
                 }
             });
 
@@ -601,7 +648,7 @@ namespace WLTDBWUI
             try {
                 System.Diagnostics.Process.Start(this.configBag.CsvDirectory);
             } catch (Exception ex) {
-                Commons.WriteLine(ex.ToString());
+                Commons.WriteLine(ex.Message);
             }
         }
 
@@ -631,7 +678,7 @@ namespace WLTDBWUI
                         wltdb.DbData2Csv(csvFilepath, dateFrom, dateTo, wlIdAliases);
                     }
                 } catch (Exception ex) {
-                    Commons.WriteLine(ex.ToString());
+                    Commons.WriteLine(ex.Message);
                 }
             });
 
@@ -641,32 +688,12 @@ namespace WLTDBWUI
                 try {
                     System.Diagnostics.Process.Start(csvFilepath);
                 } catch (Exception ex) {
-                    Commons.WriteLine(ex.ToString());
+                    Commons.WriteLine(ex.Message);
                 }
             }
         }
 
         #endregion
-
-        #endregion
-
-        #region メンバ
-
-        /// <summary>
-        /// コントロールを有効化する
-        /// </summary>
-        private void EnableControls()
-        {
-            this.tabControlMain.Enabled = true;
-        }
-
-        /// <summary>
-        /// コントロールを無効化する
-        /// </summary>
-        private void DisableControls()
-        {
-            this.tabControlMain.Enabled = false;
-        }
 
         #endregion
     }

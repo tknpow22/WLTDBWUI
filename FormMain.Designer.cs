@@ -63,7 +63,8 @@
             this.labelStartDate = new System.Windows.Forms.Label();
             this.labelEndDate = new System.Windows.Forms.Label();
             this.buttonCreateCsvFromDb = new System.Windows.Forms.Button();
-            this.textBoxStatus = new System.Windows.Forms.TextBox();
+            this.textBoxConsole = new System.Windows.Forms.TextBox();
+            this.buttonClearConsole = new System.Windows.Forms.Button();
             this.groupBoxLogFiles.SuspendLayout();
             this.tabControlMain.SuspendLayout();
             this.tabLog.SuspendLayout();
@@ -163,15 +164,14 @@
             this.buttonLogFilesToDb.Location = new System.Drawing.Point(526, 452);
             this.buttonLogFilesToDb.Name = "buttonLogFilesToDb";
             this.buttonLogFilesToDb.Size = new System.Drawing.Size(220, 23);
-            this.buttonLogFilesToDb.TabIndex = 2;
+            this.buttonLogFilesToDb.TabIndex = 1;
             this.buttonLogFilesToDb.Text = ".logファイルを内部データベースに取り込む";
             this.buttonLogFilesToDb.UseVisualStyleBackColor = true;
             this.buttonLogFilesToDb.Click += new System.EventHandler(this.buttonLogFilesToDb_Click);
             // 
             // tabControlMain
             // 
-            this.tabControlMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tabControlMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControlMain.Controls.Add(this.tabLog);
             this.tabControlMain.Controls.Add(this.tabCsv);
@@ -183,7 +183,6 @@
             // 
             // tabLog
             // 
-            this.tabLog.Controls.Add(this.textBoxStatus);
             this.tabLog.Controls.Add(this.groupBoxLogFiles);
             this.tabLog.Controls.Add(this.buttonLogFilesToDb);
             this.tabLog.Location = new System.Drawing.Point(4, 22);
@@ -484,25 +483,42 @@
             this.buttonCreateCsvFromDb.UseVisualStyleBackColor = true;
             this.buttonCreateCsvFromDb.Click += new System.EventHandler(this.buttonCreateCsvFromDb_Click);
             // 
-            // textBoxStatus
+            // textBoxConsole
             // 
-            this.textBoxStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBoxConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxStatus.Enabled = false;
-            this.textBoxStatus.Location = new System.Drawing.Point(6, 454);
-            this.textBoxStatus.Name = "textBoxStatus";
-            this.textBoxStatus.ReadOnly = true;
-            this.textBoxStatus.Size = new System.Drawing.Size(514, 19);
-            this.textBoxStatus.TabIndex = 1;
+            this.textBoxConsole.Location = new System.Drawing.Point(12, 525);
+            this.textBoxConsole.MaxLength = 0;
+            this.textBoxConsole.Multiline = true;
+            this.textBoxConsole.Name = "textBoxConsole";
+            this.textBoxConsole.ReadOnly = true;
+            this.textBoxConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxConsole.Size = new System.Drawing.Size(760, 129);
+            this.textBoxConsole.TabIndex = 1;
+            this.textBoxConsole.WordWrap = false;
+            // 
+            // buttonClearConsole
+            // 
+            this.buttonClearConsole.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonClearConsole.Location = new System.Drawing.Point(12, 660);
+            this.buttonClearConsole.Name = "buttonClearConsole";
+            this.buttonClearConsole.Size = new System.Drawing.Size(119, 23);
+            this.buttonClearConsole.TabIndex = 2;
+            this.buttonClearConsole.Text = "コンソールをクリア";
+            this.buttonClearConsole.UseVisualStyleBackColor = true;
+            this.buttonClearConsole.Click += new System.EventHandler(this.buttonClearConsole_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 531);
+            this.ClientSize = new System.Drawing.Size(784, 691);
+            this.Controls.Add(this.buttonClearConsole);
+            this.Controls.Add(this.textBoxConsole);
             this.Controls.Add(this.tabControlMain);
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(800, 570);
+            this.MinimumSize = new System.Drawing.Size(800, 730);
             this.Name = "FormMain";
             this.Text = "WATCH LOGGERの .log 整理ツール";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormMain_FormClosed);
@@ -510,7 +526,6 @@
             this.groupBoxLogFiles.ResumeLayout(false);
             this.tabControlMain.ResumeLayout(false);
             this.tabLog.ResumeLayout(false);
-            this.tabLog.PerformLayout();
             this.tabCsv.ResumeLayout(false);
             this.tabCsv.PerformLayout();
             this.groupBoxWlIdAndAlias.ResumeLayout(false);
@@ -518,6 +533,7 @@
             this.groupBoxTargetDateRange.ResumeLayout(false);
             this.groupBoxTargetDateRange.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -559,7 +575,8 @@
         private System.Windows.Forms.ColumnHeader columnHeaderAliases;
         private System.Windows.Forms.Button buttonOpenCsvDirectory;
         private System.Windows.Forms.CheckBox checkBoxExecCsv;
-        private System.Windows.Forms.TextBox textBoxStatus;
+        private System.Windows.Forms.TextBox textBoxConsole;
+        private System.Windows.Forms.Button buttonClearConsole;
     }
 }
 

@@ -11,39 +11,35 @@ namespace WLTDBWUI
     static internal class Commons
     {
         /// <summary>
-        /// ステータス表示用のテキストボックス
+        /// コンソール用のテキストボックス
         /// </summary>
-        private static TextBox textBoxStatus;
+        private static TextBox textBoxConsole;
 
         /// <summary>
-        /// ステータス表示用のテキストボックスを設定する
+        /// コンソール用のテキストボックスを設定する
         /// </summary>
-        /// <param name="tBoxStatus"></param>
-        public static void SetStatusTextBox(TextBox tBoxStatus)
+        /// <param name="tBoxConsole"></param>
+        public static void SetConsoleTextBox(TextBox tBoxConsole)
         {
-            textBoxStatus = tBoxStatus;
+            textBoxConsole = tBoxConsole;
         }
 
         /// <summary>
-        /// プログラムからの出力用
+        /// プログラムからの出力を行う
         /// </summary>
         /// <param name="format"></param>
         /// <param name="arg"></param>
         public static void WriteLine(string format, params object[] arg)
         {
-            string text = string.Format(format, arg);
-            text = text.Replace("\r", "");
-            text = text.Replace("\n", "");
-
-            if (textBoxStatus == null) {
+            if (textBoxConsole == null) {
                 return;
             }                
                     
-            if (textBoxStatus.InvokeRequired) {
-                Action invokeFunction = delegate { WriteLine(text); };
-                textBoxStatus.Invoke(invokeFunction);
+            if (textBoxConsole.InvokeRequired) {
+                Action invokeFunction = delegate { WriteLine(format, arg); };
+                textBoxConsole.Invoke(invokeFunction);
             } else {
-                textBoxStatus.Text = text;
+                textBoxConsole.AppendText(string.Format(format + "\r\n", arg));
             }
         }
     }
